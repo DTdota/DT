@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DiTv</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/fontawesome.min.css">
+    <link rel="stylesheet" href="view.css">
     <style>
         :root {
             --primary: #6c5ce7;
@@ -590,7 +592,58 @@
     </header>
 
     <section id="home" class="page active home">
-        <img src="image/c2.png" alt="Profile" class="hero-img">
+        <img src="image/c2.png" alt="Profile" class="hero-img" id="heroImg" onclick="swapImageAndPlaySound()">
+        <audio id="swapSound" src="image/ganbate.mp3"></audio>
+        <script>
+            function swapImageAndPlaySound() {
+            const heroImg = document.getElementById('heroImg');
+            const swapSound = document.getElementById('swapSound');
+            
+            // Disable clicking on the image
+            heroImg.style.pointerEvents = 'none';
+            
+            // Swap the image to video
+            const originalSrc = 'image/c2.png';
+            const swappedVideo = document.createElement('video');
+            swappedVideo.src = 'image/v1.mp4';
+            swappedVideo.autoplay = true;
+            swappedVideo.muted = true;
+            swappedVideo.loop = false;
+            swappedVideo.style.width = heroImg.style.width;
+            swappedVideo.style.height = heroImg.style.height;
+            swappedVideo.style.borderRadius = heroImg.style.borderRadius;
+
+            // Set the video size to match the image size
+            swappedVideo.style.width = heroImg.offsetWidth + 'px';
+            swappedVideo.style.height = heroImg.offsetHeight + 'px';
+            swappedVideo.style.borderRadius = '50%';
+            swappedVideo.style.objectFit = 'cover';
+            swappedVideo.style.border = '8px solid var(--primary)';
+            swappedVideo.style.marginBottom = '2rem';
+            swappedVideo.style.boxShadow = 'var(--shadow)';
+            swappedVideo.style.animation = 'float 6s ease-in-out infinite';
+
+            // Replace the image with the video
+            heroImg.replaceWith(swappedVideo);
+
+            // Revert back to the image after the video ends
+            swappedVideo.onended = () => {
+                swappedVideo.replaceWith(heroImg);
+                heroImg.style.pointerEvents = 'auto';
+            };
+            
+            // Play the sound
+            swapSound.currentTime = 0;
+            swapSound.play();
+            
+            // Revert the image and enable clicking after the sound ends
+            swapSound.onended = () => {
+                heroImg.src = originalSrc;
+                heroImg.style.pointerEvents = 'auto';
+            };
+            }
+
+        </script>
         <div class="hero-content">
             <h1>Hello, I'm DiTv</h1>
             <h2>Digital Airtist</h2>

@@ -6,18 +6,20 @@
     <title>DiTv</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/css/fontawesome.min.css">
-    <link rel="stylesheet" href="view.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
         :root {
-            --primary: #6c5ce7;
-            --primary-dark: #5649c0;
-            --secondary: #00cec9;
-            --dark: #fa5fdd;
-            --light: #2d3436;
-            --accent: #fd79a8;
+            --primary: #8a2be2;
+            --primary-dark: #6a1b9a;
+            --secondary: #00bcd4;
+            --dark: #ff69b4;
+            --light: #1a1a2e;
+            --accent: #e83e8c;
+            --gradient: linear-gradient(135deg, #8a2be2, #00bcd4);
             --transition: all 0.3s ease;
-            --shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            --radius: 12px;
+            --shadow: 0 10px 30px rgba(138, 43, 226, 0.2);
+            --glass: rgba(255, 255, 255, 0.1);
+            --radius: 16px;
         }
 
         * {
@@ -41,14 +43,15 @@
             top: 0;
             left: 0;
             width: 100%;
-            padding: 1.5rem 5%;
+            padding: 1.2rem 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #fa5fdd;
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.8), rgba(232, 62, 140, 0.8));
             backdrop-filter: blur(10px);
             z-index: 1000;
-            box-shadow: var(--shadow);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid var(--glass);
         }
 
         .logo {
@@ -291,11 +294,11 @@
         .project-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
         .project-card {
-            background-color: var(--light);
+            background-color: transparent;
             border-radius: var(--radius);
             overflow: hidden;
             transition: var(--transition);
@@ -303,30 +306,48 @@
         }
 
         .project-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px #ffffff26;
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(138, 43, 226, 0.2);
+        }
+        
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.2), rgba(0, 188, 212, 0.2));
+            opacity: 0;
+            transition: var(--transition);
+            z-index: 1;
+            border-radius: var(--radius);
+        }
+        
+        .project-card:hover::before {
+            opacity: 1;
         }
 
         .project-img {
             width: 100%;
-            height: 200px;
+            height: 600px;
             object-fit: cover;
         }
 
         .project-content {
-            padding: 1.5rem;
+            padding: 0.35rem;
         }
 
         .project-content h3 {
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.2rem;
             color: var(--primary);
         }
 
         .project-content .tech {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem;
-            margin: 0.8rem 0;
+            gap: 0.3rem;
+            margin: 0.3rem 0;
         }
 
         .project-content .tech span {
@@ -340,7 +361,7 @@
         .project-links {
             display: flex;
             gap: 1rem;
-            margin-top: 1rem;
+            margin-top: 0.1rem;
         }
 
         /* Contact Section */
@@ -474,6 +495,180 @@
             color: var(--secondary);
         }
 
+        /* Loading Animation */
+        .loading {
+            width: 100%;
+            height: 100vh;
+            position: fixed;
+            background: var(--light);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .loading-animation {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--glass);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Optimized Chat Container */
+        .chat-container {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-top: 2rem;
+            box-shadow: var(--shadow);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #chatbox-container {
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) var(--light);
+        }
+
+        #chatbox-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #chatbox-container::-webkit-scrollbar-track {
+            background: var(--light);
+            border-radius: 4px;
+        }
+
+        #chatbox-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .message {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: messageAppear 0.5s ease forwards;
+        }
+
+        @keyframes messageAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        #userInput {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass);
+            color: var(--dark);
+            font-size: 1rem;
+            padding: 1rem;
+            border-radius: var(--radius);
+            transition: var(--transition);
+        }
+
+        #userInput:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(138, 43, 226, 0.2);
+        }
+
+        #submitButton {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        #submitButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.3);
+        }
+
+        /* Quick Access Navigation */
+        .quick-nav {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 999;
+        }
+
+        .quick-nav-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            box-shadow: var(--shadow);
+        }
+
+        .quick-nav-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(138, 43, 226, 0.3);
+        }
+
+        .quick-nav-tooltip {
+            position: absolute;
+            right: 60px;
+            background: var(--gradient);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .quick-nav-btn:hover .quick-nav-tooltip {
+            opacity: 1;
+            transform: translateX(-10px);
+        }
+
+        @media (max-width: 768px) {
+            .quick-nav {
+                bottom: 20px;
+                top: unset;
+                right: 20px;
+                transform: none;
+                flex-direction: row;
+            }
+            
+            .quick-nav-tooltip {
+                bottom: 60px;
+                right: 0;
+            }
+            
+            .quick-nav-btn:hover .quick-nav-tooltip {
+                transform: translateY(-10px);
+            }
+        }
+
         /* Responsive Design */
         @media (max-width: 992px) {
             .about {
@@ -546,34 +741,136 @@
 
         /* Page transition */
         .page {
-            display: none;
-            animation: fadeIn 0.5s ease-out;
+            position: absolute;
+            width: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out, visibility 0.6s;
+            will-change: opacity, transform, visibility;
         }
 
         .page.active {
-            display: block;
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            position: relative;
         }
 
-        @keyframes fadeIn {
+        @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateX(-50px);
+                filter: blur(5px);
             }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+                filter: blur(0);
+            }
+        }
+
+        .page.active > * {
+            animation: slideIn 0.8s ease-out forwards;
+        }
+
+        .page.active > *:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .page.active > *:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .page.active > *:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        .skill-item {
+            animation: skillAppear 0.5s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes skillAppear {
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
+
+        /* Chat with AI */
+        .chat-container {
+            height: calc(100vh - 120px);
+        }
+        .message {
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+        }
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #8696a0;
+            margin: 0 2px;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(1) {
+            animation-delay: 0s;
+        }
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typingAnimation {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-5px);
+            }
+        }
+        .chat-bubble {
+            border-radius: 7.5px;
+            position: relative;
+        }
+        .chat-bubble:after {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+        .received:after {
+            left: -8px;
+            top: 0;
+            border-width: 0 16px 16px 0;
+            border-color: transparent #e5e5ea transparent transparent;
+        }
+        .sent:after {
+            right: -8px;
+            top: 0;
+            border-width: 0 0 16px 16px;
+            border-color: transparent transparent transparent #dcf8c6;
+        }
     </style>
 </head>
 <body>
+    <div class="loading" id="loading">
+        <div class="loading-animation"></div>
+    </div>
     <header>
         <a href="#" class="logo" onclick="showPage('home')"><i class=""></i> DT</a>
         
         <div class="nav-links" id="navLinks" style="font-family: 'Arial', sans-serif; font-size: 1.2rem; position: relative; animation: fadeIn 1s ease-in-out;">
-            <a href="#" class="active" onclick="playClickSound(); showPage('home')" style="color: #ffffff; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); transition: color 0.3s ease;">Home</a>
+            <a href="#" class="active" onclick="playClickSound(); showPage('home')" style="color: #ffffff; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); transition: color 0.3s ease;">Home</a>            
             <a href="#" onclick="playClickSound(); showPage('about')" style="color: #ffffff; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); transition: color 0.3s ease;">About</a>
-            <a href="#" onclick="playClickSound(); showPage('projects')" style="color: #ffffff; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); transition: color 0.3s ease;">Projects</a>
+            <a href="#" onclick="playClickSound(); showPage('projects')" style="color: #ffffff; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); transition: color 0.3s ease;">Shop</a>
             <a href="#" onclick="playClickSound(); showPage('contact')" style="color: #ffffff; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2); transition: color 0.3s ease;">Contact</a>
         </div>
 
@@ -644,23 +941,56 @@
             }
 
         </script>
-        <div class="hero-content">
-            <h1>Hello, I'm DiTv</h1>
-            <h2>Digital Airtist</h2>
-            <p>I created a digital art use Ai</p>
-            <div>
-                <a href="#" class="btn" onclick="showPage('projects')">View My Work</a>
-                <a href="#" class="btn btn-outline" onclick="showPage('contact')">Contact Me</a>
-            </div>
-            <div class="social-links">
-                <a href="#"><i class="fab fa-github"></i></a>
-                <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                <a href="https://x.com/BGSDT21"><i class="fab fa-twitter"></i></a>
-                <a href="http://instagram.com/bgs_dt2"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-facebook"></i></a>
-                <a href="#"><i class="fab fa-youtube"></i></a>
+        <div class="hero-content fade-in-out">
+            <h1 class="fade-in-text" style="animation-delay: 0.3s;">Hello, I'm DiTv</h1>
+            <h2 class="fade-in-text" style="animation-delay: 0.7s;">Virtual Character</h2>
+            <p class="fade-in-text" style="animation-delay: 1s;">Base On Artificial Intelligence</p>
+            <div class="fade-in-text" style="animation-delay: 1.5s;">
+            <a href="#" class="btn" onclick="showPage('projects')">View My Work</a>
+            <a href="#" class="btn btn-outline" onclick="showPage('contact')">Contact Me</a>
             </div>
         </div>
+        <style>
+            .fade-in-text {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInText 1s ease-out forwards;
+            }
+
+            @keyframes fadeInText {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            }
+        </style>
+
+            <div class="chat-with-ai">
+                <h3 style="font-size: 1.8rem; color: var(--primary); margin-bottom: 1rem;">Chat with DiTv</h3>
+                <div id="chat-container" style="max-width: 1200px; margin: var(--radius); background-color: var(--light); border-radius: var(--radius); box-shadow: var(--shadow); padding: var(--radius);">
+                    <div id="chatbox-container" style="height: 400px; width:1000px; overflow-y: auto; border: 1px solid #ddd; border-radius: var(--radius); padding: 1rem; background-color: var(--light); margin-bottom: var(--radius); display: flex; flex-direction: column; gap: 1rem;">
+                        <!-- AI Message -->
+                        <div class="message received" style="display: flex; align-items: flex-start; gap: 0.5rem;">
+                            <img src="image/c2.png" alt="AI Avatar" style="width: 40px; height: 40px; border-radius: 50%; box-shadow: var(--shadow);" />
+                            <div class="chat-bubble" style="background-color: var(--primary); color: var(--light); padding: 0.8rem 1.2rem; border-radius: 10px 10px 10px 0; font-size: 0.9rem; line-height: 1.4; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                                Hello! it's me DiTv, How are you today?
+                            </div id="chatbox">
+                        </div>
+                    </div>
+                </div>
+                <div id="input-container" style="display: flex; gap: 0.5rem; padding: 0.5rem;">
+                    <input type="text" id="userInput" placeholder="Type a message..." style="flex: 1; padding: 0.8rem; border: 1px solid #ddd; border-radius: var(--radius); font-size: 1rem; transition: var(--transition);" />
+                    <button id="submitButton" onclick="sendQuery()" style="padding: 0.8rem 1.5rem; background-color: var(--primary); color: var(--light); border: none; border-radius: var(--radius); font-size: 1rem; cursor: pointer; transition: var(--transition);">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+            <script src="main.js"></script>
+        </script>
     </section>
 
     <section id="about" class="page about">
@@ -696,7 +1026,7 @@
         <h2>My Anime Style Art</h2>
         <div class="project-grid">
             <div class="project-card">
-                <img src="image/c9.png" alt="E-commerce Platform" class="project-img">
+                <img src="image/c1.png" alt="E-commerce Platform" class="project-img">
                 <div class="project-content">
                     <h3>Anime Fanart</h3>
                     <p>Created all character anime use my workflow in comfyUI</p>
@@ -851,6 +1181,14 @@
     </footer>
 
     <script>
+        // Loading Screen
+        window.addEventListener('load', function() {
+            const loading = document.getElementById('loading');
+            setTimeout(() => {
+                loading.style.display = 'none';
+            }, 1500);
+        });
+
         // Navigation functionality
         document.addEventListener('DOMContentLoaded', function() {
             const menuToggle = document.getElementById('menuToggle');
@@ -860,59 +1198,70 @@
                 navLinks.classList.toggle('show');
             });
             
-            // Smooth scroll for anchor links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    const targetId = this.getAttribute('href');
-                    if (targetId === '#') return;
-                    
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        window.scrollTo({
-                            top: targetElement.offsetTop - 80,
-                            behavior: 'smooth'
-                        });
-                    }
-                });
+            // Initialize pages
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => {
+                if (!page.classList.contains('active')) {
+                    page.style.display = 'none';
+                }
             });
         });
 
-        // Single Page Application functionality
+        // Enhanced Page Transition
         function showPage(pageId) {
-            // Hide all pages
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
+            const pages = document.querySelectorAll('.page');
+            const currentPage = document.querySelector('.page.active');
+            const targetPage = document.getElementById(pageId);
             
-            // Show selected page
-            document.getElementById(pageId).classList.add('active');
-            
+            if (currentPage === targetPage) return;
+
             // Update navigation active state
             document.querySelectorAll('.nav-links a').forEach(link => {
                 link.classList.remove('active');
+                if (link.getAttribute('onclick').includes(pageId)) {
+                    link.classList.add('active');
+                }
             });
-            
-            // Add active class to clicked link
-            event.target.classList.add('active');
-            
-            // Close mobile menu if open
-            const navLinks = document.getElementById('navLinks');
-            if (navLinks.classList.contains('show')) {
-                navLinks.classList.remove('show');
+
+            // Handle page transition
+            if (currentPage) {
+                currentPage.classList.remove('active');
+                setTimeout(() => {
+                    currentPage.style.display = 'none';
+                    targetPage.style.display = 'block';
+                    requestAnimationFrame(() => {
+                        targetPage.classList.add('active');
+                    });
+                }, 600);
+            } else {
+                targetPage.style.display = 'block';
+                requestAnimationFrame(() => {
+                    targetPage.classList.add('active');
+                });
             }
-            
-            // Scroll to top
-            window.scrollTo(0, 0);
         }
 
         // Form submission
         document.querySelector('form')?.addEventListener('submit', function(e) {
             e.preventDefault();
-            alert('Thank you for your message! I will get back to you soon.');
             this.reset();
         });
     </script>
+
+    <!-- Quick Access Navigation -->
+    <div class="quick-nav">
+        <button class="quick-nav-btn" onclick="playClickSound(); showPage('about')">
+            <i class="fas fa-user"></i>
+            <span class="quick-nav-tooltip">About Me</span>
+        </button>
+        <button class="quick-nav-btn" onclick="playClickSound(); showPage('projects')">
+            <i class="fas fa-store"></i>
+            <span class="quick-nav-tooltip">Shop</span>
+        </button>
+        <button class="quick-nav-btn" onclick="playClickSound(); showPage('contact')">
+            <i class="fas fa-envelope"></i>
+            <span class="quick-nav-tooltip">Contact</span>
+        </button>
+    </div>
 </body>
 </html>

@@ -1,33 +1,47 @@
 let enterPressEnabled = true;
 
-// Function to query the chatbot API
-async function queryOllama(prompt) {
+// Function to query the Gemini API
+async function queryGemini(prompt) {
+    const API_KEY = 'AIzaSyDs3ZScRVkYAqWFclAONwNhmc5X6gVfmDQ'; // Replace with your actual Gemini API key
+    const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+    
     let fullResponse = '';
 
     try {
-        const response = await axios.post("http://127.0.0.1:8080/api/generate", {
-            model: "llama3.1:8b",
-            prompt: prompt,
+        console.log('Sending request to Gemini API...');
+        const response = await axios.post(`${API_URL}?key=${API_KEY}`, {
+            contents: [{
+                parts: [{
+                    text: prompt
+                }]
+            }]
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
         });
 
-        if (response.data) {
-            const responseData = response.data.split('\n'); // Split the response into chunks
-            responseData.forEach(chunk => {
-                if (chunk) {
-                    const parsedChunk = JSON.parse(chunk);
-                    fullResponse += parsedChunk.response;
-                    if (parsedChunk.done) {
-                        console.log("Full Response:", fullResponse);
-                    }
-                }
-            });
+        console.log('Raw API Response:', response.data);
+
+        if (response.data && response.data.candidates && response.data.candidates.length > 0) {
+            const candidate = response.data.candidates[0];
+            if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
+                fullResponse = candidate.content.parts[0].text;
+                console.log("Processed Response:", fullResponse);
+            } else {
+                console.error("No content in response parts");
+                fullResponse = "I apologize, but I couldn't generate a proper response.";
+            }
+        } else {
+            console.error("No candidates in response");
+            fullResponse = "I apologize, but I couldn't generate a response at this time.";
         }
     } catch (error) {
-        console.error("Error:", error.message);
-        fullResponse = "Sorry, I couldn't understand that.";
+        console.error("Error details:", error.response ? error.response.data : error.message);
+        fullResponse = "Sorry, I encountered an error while processing your request.";
     }
 
-    return fullResponse || "Sorry, I couldn't understand that.";
+    return fullResponse;
 }
 
 // Function to handle user input and send the query
@@ -51,7 +65,7 @@ async function sendQuery() {
         `;
         chatbox.appendChild(userMessage);
 
-        // Call chatbot API and display AI response
+        // Call Gemini API and display AI response
         const aiMessage = document.createElement('div');
         aiMessage.className = 'message received';
         aiMessage.style.display = 'flex';
@@ -69,8 +83,8 @@ async function sendQuery() {
         `;
         chatbox.appendChild(aiMessage);
         chatbox.scrollTop = chatbox.scrollHeight;
-        // Fetch AI response
-        const response = await queryOllama(userInput.value);
+        // Fetch AI response from Gemini
+        const response = await queryGemini(userInput.value);
 
         // Update AI message with the response
         const aiBubble = aiMessage.querySelector('.chat-bubble');
